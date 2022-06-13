@@ -118,4 +118,16 @@ router.post("/signin", async (req, res) => {
   }
 });
 
+// ROUTE 3 : Get loggedin Member Details using : POST "/api/auth/getmember" Login required
+router.post("/getmembers", async (req, res) => {
+  try {
+    // let memberId = req.member.id;
+    const member = await Member.find({});
+    res.send(member);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal server error");
+  }
+});
+
 module.exports = router;
