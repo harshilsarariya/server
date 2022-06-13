@@ -3,7 +3,7 @@ const JWT_SECRET = "ideal@company%^&461)";
 
 const fetchuser = (req, res, next) => {
   // Get user from the jwt token and add id to req object
-  const token = req.header("auth-token");
+  const token = req.header("authorization");
   if (!token) {
     res.status(401).send({ error: "Please authenticate using a valid token" });
   }
