@@ -5,7 +5,7 @@ var fetchuser = require("../middleware/fetchuser");
 const { body, validationResult } = require("express-validator");
 const { isValidObjectId } = require("mongoose");
 
-// ROUTE 1: Add a new Complaint using : POST "/api/complaint" ,  login required
+// ROUTE 1: Add a new Complaint using : POST "/api/complaint/addcomplaint" ,  login required
 
 router.post(
   "/addcomplaint",
@@ -157,7 +157,7 @@ router.put(
 
 // ROUTE 3: Get all Complaints using : GET "api/complaint/fetchallcomplaints" ,  login required
 
-router.get("/fetchallcomplaints", fetchuser, async (req, res) => {
+router.get("/fetchallcomplaints", async (req, res) => {
   try {
     const complaints = await Complaint.find({});
     res.json(complaints);
@@ -391,9 +391,9 @@ router.get("/searchByInProgress", fetchuser, async (req, res) => {
   }
 });
 
-// Route 8: Fetch recent Complaint by repeat using : GET "api/complaint/fetchComplaints" ,  login required
+// Route 8: Fetch recent Complaint  using : GET "api/complaint/fetchComplaints" ,  login required
 
-router.get("/fetchComplaints", fetchuser, async (req, res) => {
+router.get("/fetchComplaints", async (req, res) => {
   try {
     const { pageNo = 0, limit = 5 } = req.query;
 
@@ -419,6 +419,7 @@ router.get("/fetchComplaints", fetchuser, async (req, res) => {
         problemSolved: complaint.problemSolved,
         repeat: complaint.repeat,
         syphoneColor: complaint.syphoneColor,
+        date: complaint.date,
       })),
       complaintCount,
     });
@@ -427,4 +428,5 @@ router.get("/fetchComplaints", fetchuser, async (req, res) => {
     res.status(500).send("Internal server error\n" + error.message);
   }
 });
+
 module.exports = router;
