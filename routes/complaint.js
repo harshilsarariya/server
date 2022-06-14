@@ -76,7 +76,6 @@ router.post(
 
 router.put(
   "/updatecomplaint/:id",
-  fetchuser,
   [
     body("partyName", "Enter a valid Party name").isLength({
       min: 3,
@@ -169,7 +168,7 @@ router.get("/fetchallcomplaints", async (req, res) => {
 
 // ROUTE 4: Delete an existing Complaint using : DELETE "api/complaint/deletecomplaint" ,  login required
 
-router.delete("/deletecomplaint/:id", fetchuser, async (req, res) => {
+router.delete("/deletecomplaint/:id", async (req, res) => {
   try {
     const prmId = req.params.id;
     if (!isValidObjectId(prmId))
@@ -199,7 +198,6 @@ router.get("/fetchcomplaint/:id", fetchuser, async (req, res) => {
 
     // Find the note to be updated and update it
     let complaint = await Complaint.findById(prmId);
-    console.log(complaint);
     if (!complaint) {
       return res.status(404).send("Complaint Not Found!");
     }
@@ -246,7 +244,6 @@ router.get("/fetchcomplaint/:id", fetchuser, async (req, res) => {
 router.get("/search", fetchuser, async (req, res) => {
   try {
     const { search } = req.query;
-    console.log(search);
     if (!search.trim())
       return res.status(401).json({ error: "search query is missing!" });
     const complaints = await Complaint.find({
@@ -281,6 +278,72 @@ router.get("/search", fetchuser, async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal server error\n" + error.message);
+  }
+});
+
+//  Search By id using : GET "api/complaint/searchByCompany" ,  login required
+router.get("/searchByCompany", async (req, res) => {
+  try {
+    const { compayName } = req.query;
+    // if (!isValidObjectId(companyName))
+    //   return res.status(401).json({ error: "Invalid Request" });
+    // Find the complaint to be updated and update it
+    let complaint = await Complaint.find({ brandName: compayName });
+    if (!complaint) {
+      return res.status(404).send("Complaint Not Found!");
+    }
+
+    res.json(complaint);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal server error");
+  }
+});
+router.get("/searchById/:id", async (req, res) => {
+  try {
+    const prmId = req.params.id;
+    if (!isValidObjectId(prmId))
+      return res.status(401).json({ error: "Invalid Request" });
+    // Find the complaint to be updated and update it
+    let complaint = await Complaint.findById(prmId);
+    if (!complaint) {
+      return res.status(404).send("Complaint Not Found!");
+    }
+    const {
+      partyName,
+      address,
+      pincode,
+      state,
+      city,
+      mobileNo,
+      plumbingNo,
+      brandName,
+      workDone,
+      problemSolved,
+      repeat,
+      syphoneColor,
+    } = complaint;
+
+    res.json({
+      complaint: {
+        id: complaint._id,
+        partyName,
+        address,
+        pincode,
+        state,
+        city,
+        mobileNo,
+        plumbingNo,
+        brandName,
+        workDone,
+        problemSolved,
+        repeat,
+        syphoneColor,
+      },
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal server error");
   }
 });
 
