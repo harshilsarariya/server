@@ -5,7 +5,7 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 var fetchuser = require("../middleware/fetchuser");
-
+const { isValidObjectId } = require("mongoose");
 // jwt secret key
 const JWT_SECRET = "ideal@company%^&461)";
 
@@ -35,12 +35,12 @@ router.post("/createmember", async (req, res) => {
       });
     }
 
-    if (isNaN(req.body.phone)) {
-      return res.status(400).json({
-        success,
-        errors: "Phone number must be a valid number",
-      });
-    }
+    // if (isNaN(req.body.phone)) {
+    //   return res.status(400).json({
+    //     success,
+    //     errors: "Phone number must be a valid number",
+    //   });
+    // }
 
     // hashing a password
     const salt = bcrypt.genSaltSync(10);
@@ -121,9 +121,44 @@ router.post("/signin", async (req, res) => {
 // ROUTE 3 : Get loggedin Member Details using : POST "/api/auth/getmember" Login required
 router.post("/getmembers", async (req, res) => {
   try {
-    // let memberId = req.member.id;
-    const member = await Member.find({});
-    res.send(member);
+    const data = await Member.find({});
+    res.json(data);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal server error");
+  }
+});
+
+router.delete("/deleteMember/:id", async (req, res) => {
+  try {
+    const prmId = req.params.id;
+    if (!isValidObjectId(prmId))
+      return res.status(401).json({ error: "Invalid Request" });
+    let member = await Member.findById(prmId);
+
+    if (!member) {
+      return res.status(404).send("Member Not Found!");
+    }
+
+    complaint = await Member.findByIdAndDelete(prmId);
+    res.json({ Success: "Member has been deleted", member: member });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal server error");
+  }
+});
+
+router.post("/getmember/:id", async (req, res) => {
+  try {
+    const prmId = req.params.id;
+    if (!isValidObjectId(prmId))
+      return res.status(401).json({ error: "Invalid Request" });
+    let data = await Member.findById(prmId);
+
+    if (!data) {
+      return res.status(404).send("Member Not Found!");
+    }
+    res.json({ data: data });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal server error");
