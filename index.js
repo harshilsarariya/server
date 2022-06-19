@@ -7,7 +7,7 @@ connectToMongo();
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors({ origin: "https://ubiquitous-lokum-ea8e18.netlify.app/" }));
 
 // add middleware for sending json
 app.use(express.json());
