@@ -7,7 +7,7 @@ connectToMongo();
 
 const app = express();
 
-app.use(cors({ origin: "https://ubiquitous-lokum-ea8e18.netlify.app" }));
+app.use(cors({ origin: "https://quickfixbathsolutions.com" }));
 
 // add middleware for sending json
 app.use(express.json());
