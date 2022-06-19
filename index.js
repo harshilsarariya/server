@@ -21,10 +21,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message });
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
 const PORT = process.env.PORT || 4848;
 
 app.listen(PORT, () => {
