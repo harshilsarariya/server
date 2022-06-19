@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const connectToMongo = require("./db");
 var cors = require("cors");
@@ -5,7 +6,6 @@ var cors = require("cors");
 connectToMongo();
 
 const app = express();
-const port = 5000;
 
 app.use(cors({ origin: "http://localhost:3000" }));
 
@@ -16,10 +16,17 @@ app.use(express.json());
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/complaint", require("./routes/complaint"));
 
+app.use((err, req, res, next) => {
+  console.log(err);
+  res.status(500).json({ error: err.message });
+});
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+const PORT = process.env.PORT || 4848;
+
+app.listen(PORT, () => {
+  console.log("Port is listining on " + PORT);
 });
