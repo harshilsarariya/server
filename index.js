@@ -7,8 +7,8 @@ connectToMongo();
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:3000" }));
-// app.use(cors({ origin: "https://quickfixbathsolutions.com" }));
+// app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors({ origin: "https://quickfixbathsolutions.com" }));
 
 // add middleware for sending json
 app.use(express.json());
