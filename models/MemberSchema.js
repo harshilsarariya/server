@@ -15,6 +15,13 @@ const MemberSchema = new Schema({
     type: Number,
     required: true,
   },
+  isForwardingMember: {
+    type: String,
+    required: true,
+  },
+  states: {
+    type: [String],
+  },
   password: {
     type: String,
     required: true,

@@ -35,13 +35,6 @@ router.post("/createmember", async (req, res) => {
       });
     }
 
-    // if (isNaN(req.body.phone)) {
-    //   return res.status(400).json({
-    //     success,
-    //     errors: "Phone number must be a valid number",
-    //   });
-    // }
-
     // hashing a password
     const salt = bcrypt.genSaltSync(10);
     const secPass = await bcrypt.hash(req.body.password, salt);
@@ -49,6 +42,8 @@ router.post("/createmember", async (req, res) => {
     member = await Member.create({
       name: req.body.name,
       email: req.body.email,
+      isForwardingMember: req.body.isForwardingMember,
+      states: req.body.states,
       phone: req.body.phone,
       password: secPass,
     });
@@ -148,12 +143,27 @@ router.delete("/deleteMember/:id", async (req, res) => {
   }
 });
 
-router.post("/getmember/:id", async (req, res) => {
+router.get("/getmember/:id", async (req, res) => {
   try {
     const prmId = req.params.id;
     if (!isValidObjectId(prmId))
       return res.status(401).json({ error: "Invalid Request" });
     let data = await Member.findById(prmId);
+
+    if (!data) {
+      return res.status(404).send("Member Not Found!");
+    }
+    res.json({ data: data });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal server error");
+  }
+});
+router.get("/getMemberByEmail", async (req, res) => {
+  try {
+    const { email } = req.query;
+    console.log(email);
+    let data = await Member.find({ email: email });
 
     if (!data) {
       return res.status(404).send("Member Not Found!");

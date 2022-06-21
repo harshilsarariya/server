@@ -54,6 +54,19 @@ const ComplaintSchema = new Schema({
     type: String,
     required: true,
   },
+  remark: {
+    type: String,
+  },
+  problem: {
+    type: String,
+  },
+  solution: {
+    type: String,
+  },
+  plumberName: {
+    type: String,
+  },
+
   complaintClosedDate: {
     type: Date,
   },

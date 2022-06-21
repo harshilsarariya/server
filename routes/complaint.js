@@ -19,7 +19,7 @@ router.post(
     body("pincode", "Enter a valid Pincode").isLength({ min: 6 }),
     body("mobileNo", "Enter a valid Mobile Number").isLength({ min: 8 }),
     body("plumbingNo", "Enter a valid Plumbing Number").isLength({ min: 1 }),
-    body("brandName", "Enter a valid Brand Name").isLength({ min: 3 }),
+    body("brandName", "Enter a valid Brand Name").isLength({ min: 2 }),
     body("syphoneColor", "Enter a valid Syphone Color").isLength({ min: 3 }),
   ],
   async (req, res) => {
@@ -86,8 +86,12 @@ router.put(
     body("pincode", "Enter a valid Pincode").isLength({ min: 6 }),
     body("mobileNo", "Enter a valid Mobile Number").isLength({ min: 8 }),
     body("plumbingNo", "Enter a valid Plumbing Number").isLength({ min: 1 }),
-    body("brandName", "Enter a valid Brand Name").isLength({ min: 3 }),
+    body("brandName", "Enter a valid Brand Name").isLength({ min: 2 }),
     body("syphoneColor", "Enter a valid Syphone Color").isLength({ min: 3 }),
+    body("remark", "Enter a valid Remark").isLength({ min: 2 }),
+    body("problem", "Enter a valid Problem").isLength({ min: 2 }),
+    body("solution", "Enter a valid Solution").isLength({ min: 2 }),
+    body("plumberName", "Enter a valid Plumber Name").isLength({ min: 2 }),
   ],
   async (req, res) => {
     try {
@@ -104,6 +108,10 @@ router.put(
         problemSolved,
         repeat,
         syphoneColor,
+        remark,
+        problem,
+        solution,
+        plumberName,
       } = req.body;
 
       // const { complaintId } = req.params;
@@ -129,6 +137,10 @@ router.put(
       complaint.problemSolved = problemSolved;
       complaint.repeat = repeat;
       complaint.syphoneColor = syphoneColor;
+      complaint.remark = remark;
+      complaint.problem = problem;
+      complaint.solution = solution;
+      complaint.plumberName = plumberName;
 
       await complaint.save();
       res.json({
@@ -145,6 +157,10 @@ router.put(
           problemSolved,
           repeat,
           syphoneColor,
+          remark,
+          problem,
+          solution,
+          plumberName,
         },
       });
     } catch (error) {
@@ -282,6 +298,23 @@ router.get("/search", fetchuser, async (req, res) => {
 });
 
 //  Search By id using : GET "api/complaint/searchByCompany" ,  login required
+router.get("/searchByState", async (req, res) => {
+  try {
+    const { state } = req.query;
+
+    // Find the complaint to be updated and update it
+    let complaint = await Complaint.find({ state: state });
+    console.log(complaint);
+    if (!complaint) {
+      return res.status(404).send("Complaint Not Found!");
+    }
+
+    res.json(complaint);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal server error");
+  }
+});
 router.get("/searchByCompany", async (req, res) => {
   try {
     const { compayName } = req.query;
@@ -322,6 +355,10 @@ router.get("/searchById/:id", async (req, res) => {
       problemSolved,
       repeat,
       syphoneColor,
+      remark,
+      problem,
+      solution,
+      plumberName,
     } = complaint;
 
     res.json({
@@ -339,6 +376,10 @@ router.get("/searchById/:id", async (req, res) => {
         problemSolved,
         repeat,
         syphoneColor,
+        remark,
+        problem,
+        solution,
+        plumberName,
       },
     });
   } catch (error) {
