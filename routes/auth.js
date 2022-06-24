@@ -175,4 +175,37 @@ router.get("/getMemberByEmail", async (req, res) => {
   }
 });
 
+router.put(
+  "/updateMember/:id",
+
+  async (req, res) => {
+    try {
+      const { name, email, phone, isForwardingMember, states } = req.body;
+
+      if (!isValidObjectId(req.params.id)) {
+        return res.status(401).json({ error: "Invalid Request" });
+      }
+
+      // Find the note to be updated and update it
+      let member = await Member.findById(req.params.id);
+      if (!member) {
+        return res.status(404).send("Member Not Found");
+      }
+
+      member.name = name;
+      member.email = email;
+      member.phone = phone;
+      member.isForwardingMember = isForwardingMember;
+      member.states = states;
+
+      await member.save();
+
+      res.json({ member: member });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Internal server error\n" + error.message);
+    }
+  }
+);
+
 module.exports = router;
