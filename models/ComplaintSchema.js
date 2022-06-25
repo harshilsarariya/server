@@ -8,7 +8,7 @@ const ComplaintSchema = new Schema({
   },
   partyName: {
     type: String,
-    required: true,
+    default: " ",
   },
   address: {
     type: String,
@@ -66,9 +66,8 @@ const ComplaintSchema = new Schema({
   plumberName: {
     type: String,
   },
-
-  complaintClosedDate: {
-    type: Date,
+  closingDate: {
+    type: String,
   },
 });
 const Complaint = mongoose.model("complaint", ComplaintSchema);

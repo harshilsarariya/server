@@ -10,9 +10,6 @@ const { isValidObjectId } = require("mongoose");
 router.post(
   "/addcomplaint",
   [
-    body("partyName", "Enter a valid Party name").isLength({
-      min: 3,
-    }),
     body("address", "Enter a valid Address ").isLength({
       min: 3,
     }),
@@ -77,9 +74,6 @@ router.post(
 router.put(
   "/updatecomplaint/:id",
   [
-    body("partyName", "Enter a valid Party name").isLength({
-      min: 3,
-    }),
     body("address", "Enter a valid Address ").isLength({
       min: 3,
     }),
@@ -112,6 +106,7 @@ router.put(
         problem,
         solution,
         plumberName,
+        closingDate,
       } = req.body;
 
       // const { complaintId } = req.params;
@@ -141,6 +136,7 @@ router.put(
       complaint.problem = problem;
       complaint.solution = solution;
       complaint.plumberName = plumberName;
+      complaint.closingDate = closingDate;
 
       await complaint.save();
       res.json({
@@ -161,6 +157,7 @@ router.put(
           problem,
           solution,
           plumberName,
+          closingDate,
         },
       });
     } catch (error) {
@@ -304,12 +301,14 @@ router.get("/searchByState", async (req, res) => {
 
     // Find the complaint to be updated and update it
     let complaint = await Complaint.find({ state: state });
-    console.log(complaint);
+
     if (!complaint) {
       return res.status(404).send("Complaint Not Found!");
     }
 
     res.json(complaint);
+    console.log("complaint");
+    console.log(complaint);
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal server error");
@@ -326,6 +325,20 @@ router.get("/searchByCompany", async (req, res) => {
       return res.status(404).send("Complaint Not Found!");
     }
 
+    res.json(complaint);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal server error");
+  }
+});
+router.get("/searchByPhoneNo", async (req, res) => {
+  try {
+    const { mobileNo } = req.query;
+    // Find the complaint to be updated and update it
+    let complaint = await Complaint.find({ mobileNo: mobileNo });
+    if (!complaint) {
+      return res.status(404).send("Complaint Not Found!");
+    }
     res.json(complaint);
   } catch (error) {
     console.error(error.message);
@@ -359,6 +372,7 @@ router.get("/searchById/:id", async (req, res) => {
       problem,
       solution,
       plumberName,
+      closingDate,
     } = complaint;
 
     res.json({
@@ -380,6 +394,7 @@ router.get("/searchById/:id", async (req, res) => {
         problem,
         solution,
         plumberName,
+        closingDate,
       },
     });
   } catch (error) {
