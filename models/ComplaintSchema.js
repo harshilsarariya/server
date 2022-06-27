@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-
+const moment = require("moment");
+const dateNow = moment(Date.now()).format("DD-MM-YYYY");
 const ComplaintSchema = new Schema({
   date: {
-    type: Date,
-    default: Date.now,
+    type: String,
+    default: dateNow,
   },
   partyName: {
     type: String,

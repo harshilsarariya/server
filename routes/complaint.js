@@ -195,7 +195,7 @@ router.delete("/deletecomplaint/:id", async (req, res) => {
 
 // ROUTE 5: Get a single Note using : GET "api/complaint/fetchcomplaint/:id" ,  login required
 
-router.get("/fetchcomplaint/:id", fetchuser, async (req, res) => {
+router.get("/fetchcomplaint/:id", async (req, res) => {
   try {
     const prmId = req.params.id;
     if (!isValidObjectId(prmId))
@@ -219,6 +219,7 @@ router.get("/fetchcomplaint/:id", fetchuser, async (req, res) => {
       problemSolved,
       repeat,
       syphoneColor,
+      date,
     } = complaint;
 
     res.json({
@@ -236,6 +237,7 @@ router.get("/fetchcomplaint/:id", fetchuser, async (req, res) => {
         problemSolved,
         repeat,
         syphoneColor,
+        date,
       },
     });
   } catch (error) {
@@ -306,11 +308,10 @@ router.get("/searchByState", async (req, res) => {
 });
 router.get("/searchByCompany", async (req, res) => {
   try {
-    const { compayName } = req.query;
-    // if (!isValidObjectId(companyName))
-    //   return res.status(401).json({ error: "Invalid Request" });
-    // Find the complaint to be updated and update it
-    let complaint = await Complaint.find({ brandName: compayName });
+    const { brandName } = req.query;
+    let complaint = await Complaint.find({
+      brandName: { $regex: brandName },
+    });
     if (!complaint) {
       return res.status(404).send("Complaint Not Found!");
     }
