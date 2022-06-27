@@ -56,7 +56,6 @@ router.post("/createmember", async (req, res) => {
 
     const authToken = jwt.sign(data, JWT_SECRET);
     success = true;
-    console.log(success);
     res.json({ success, authToken });
   } catch (error) {
     console.error(error.message);
@@ -162,7 +161,6 @@ router.get("/getmember/:id", async (req, res) => {
 router.get("/getMemberByEmail", async (req, res) => {
   try {
     const { email } = req.query;
-    console.log(email);
     let data = await Member.find({ email: email });
 
     if (!data) {
