@@ -8,7 +8,7 @@ const ComplaintSchema = new Schema({
   },
   partyName: {
     type: String,
-    default: " ",
+    default: "",
   },
   address: {
     type: String,
@@ -40,11 +40,11 @@ const ComplaintSchema = new Schema({
   },
   workDone: {
     type: String,
-    required: true,
+    default: "No",
   },
   problemSolved: {
     type: String,
-    required: true,
+    default: "No",
   },
   repeat: {
     type: String,
@@ -52,7 +52,7 @@ const ComplaintSchema = new Schema({
   },
   syphoneColor: {
     type: String,
-    required: true,
+    default: "",
   },
   remark: {
     type: String,
