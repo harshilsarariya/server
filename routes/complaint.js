@@ -4,7 +4,7 @@ const Complaint = require("../models/ComplaintSchema");
 var fetchuser = require("../middleware/fetchuser");
 const { body, validationResult } = require("express-validator");
 const { isValidObjectId } = require("mongoose");
-
+const moment = require("moment");
 // ROUTE 1: Add a new Complaint using : POST "/api/complaint/addcomplaint" ,  login required
 
 router.post(
@@ -17,7 +17,6 @@ router.post(
     body("mobileNo", "Enter a valid Mobile Number").isLength({ min: 8 }),
     body("plumbingNo", "Enter a valid Plumbing Number").isLength({ min: 1 }),
     body("brandName", "Enter a valid Brand Name").isLength({ min: 2 }),
-    body("syphoneColor", "Enter a valid Syphone Color").isLength({ min: 3 }),
   ],
   async (req, res) => {
     let success = false;
@@ -31,8 +30,6 @@ router.post(
         mobileNo,
         plumbingNo,
         brandName,
-        workDone,
-        problemSolved,
         repeat,
         syphoneColor,
       } = req.body;
@@ -53,8 +50,6 @@ router.post(
         mobileNo,
         plumbingNo,
         brandName,
-        workDone,
-        problemSolved,
         repeat,
         syphoneColor,
       });
@@ -81,7 +76,6 @@ router.put(
     body("mobileNo", "Enter a valid Mobile Number").isLength({ min: 8 }),
     body("plumbingNo", "Enter a valid Plumbing Number").isLength({ min: 1 }),
     body("brandName", "Enter a valid Brand Name").isLength({ min: 2 }),
-    body("syphoneColor", "Enter a valid Syphone Color").isLength({ min: 3 }),
     body("remark", "Enter a valid Remark").isLength({ min: 2 }),
     body("problem", "Enter a valid Problem").isLength({ min: 2 }),
     body("solution", "Enter a valid Solution").isLength({ min: 2 }),
@@ -108,8 +102,6 @@ router.put(
         plumberName,
         closingDate,
       } = req.body;
-
-      // const { complaintId } = req.params;
 
       if (!isValidObjectId(req.params.id)) {
         return res.status(401).json({ error: "Invalid Request" });
@@ -307,8 +299,6 @@ router.get("/searchByState", async (req, res) => {
     }
 
     res.json(complaint);
-    console.log("complaint");
-    console.log(complaint);
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal server error");
@@ -402,13 +392,40 @@ router.get("/searchById/:id", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
+router.get("/fetchComplaintsCount", async (req, res) => {
+  try {
+    let n = moment().month();
+    if (n <= 9) {
+      n = "0" + n;
+    }
+
+    let currentDate = moment().year() + "-" + n + "-" + moment().date();
+    let complaint = await Complaint.aggregate([
+      {
+        $project: {
+          day: { $substr: ["$date", 9, 2] },
+          month: { $substr: ["$date", 5, 2] },
+          // year: { $substr: ["$date", 0, 4] },
+        },
+      },
+      { $match: { day: currentDate, month: n } },
+    ]);
+    if (!complaint) {
+      return res.status(404).send("Complaint Not Found!");
+    }
+    let len = complaint.length;
+    res.json({ complaint, len });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal server error");
+  }
+});
 
 // ROUTE 7: Search Complaint by status using : GET "api/complaint/searchByStatus" ,  login required
 
 router.get("/searchByOpen", fetchuser, async (req, res) => {
   try {
     const { search } = req.query;
-    console.log(search);
     if (!search.trim())
       return res.status(401).json({ error: "search query is missing!" });
     const complaints = await Complaint.find({
@@ -446,7 +463,6 @@ router.get("/searchByOpen", fetchuser, async (req, res) => {
 router.get("/searchByClosed", fetchuser, async (req, res) => {
   try {
     const { workDone } = req.query;
-    console.log(workDone);
     if (!workDone.trim())
       return res.status(401).json({ error: "workDone query is missing!" });
     const complaints = await Complaint.find({
@@ -479,7 +495,6 @@ router.get("/searchByClosed", fetchuser, async (req, res) => {
 router.get("/searchByInProgress", fetchuser, async (req, res) => {
   try {
     const { problemSolved } = req.query;
-    console.log(problemSolved);
     if (!problemSolved.trim())
       return res.status(401).json({ error: "problemSolved query is missing!" });
     const complaints = await Complaint.find({
