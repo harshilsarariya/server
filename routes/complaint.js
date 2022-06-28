@@ -32,6 +32,7 @@ router.post(
         brandName,
         repeat,
         syphoneColor,
+        entryUserEmail,
       } = req.body;
 
       // If there are error then return the bad request and error
@@ -52,6 +53,7 @@ router.post(
         brandName,
         repeat,
         syphoneColor,
+        entryUserEmail,
       });
 
       const savecomplaint = await complaint.save();
@@ -367,7 +369,7 @@ router.get("/searchById/:id", async (req, res) => {
   }
 });
 router.get("/fetchTodaysComplaintsCount", async (req, res) => {
-  const { plumbingNo } = req.query;
+  const { email } = req.query;
   try {
     let n = moment().month() + 1;
     if (n <= 9) {
@@ -376,7 +378,7 @@ router.get("/fetchTodaysComplaintsCount", async (req, res) => {
     let currDate = moment().date() + "-" + n + "-" + moment().year();
 
     let complaint = await Complaint.find({
-      $and: [{ date: { $eq: currDate } }, { plumbingNo: plumbingNo }],
+      $and: [{ date: { $eq: currDate } }, { entryUserEmail: email }],
     });
     if (!complaint) {
       return res.status(404).send("Complaint Not Found!");
@@ -389,7 +391,7 @@ router.get("/fetchTodaysComplaintsCount", async (req, res) => {
   }
 });
 router.get("/fetchComplaintsCount", async (req, res) => {
-  const { plumbingNo } = req.query;
+  const { email } = req.query;
   try {
     let n = moment().month() + 1;
     if (n <= 9) {
@@ -397,7 +399,7 @@ router.get("/fetchComplaintsCount", async (req, res) => {
     }
     let currDate = "1" + "-" + n + "-" + moment().year();
     let complaint = await Complaint.find({
-      $and: [{ date: { $gt: currDate } }, { plumbingNo: plumbingNo }],
+      $and: [{ date: { $gt: currDate } }, { entryUserEmail: email }],
     });
     if (!complaint) {
       return res.status(404).send("Complaint Not Found!");

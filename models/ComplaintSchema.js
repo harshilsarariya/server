@@ -70,6 +70,9 @@ const ComplaintSchema = new Schema({
   closingDate: {
     type: String,
   },
+  entryUserEmail: {
+    type: String,
+  },
 });
 const Complaint = mongoose.model("complaint", ComplaintSchema);
 module.exports = Complaint;
