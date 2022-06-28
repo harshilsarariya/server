@@ -248,40 +248,13 @@ router.get("/fetchcomplaint/:id", async (req, res) => {
 
 // ROUTE 6: Search Complaints using : GET "api/complaint/search" ,  login required
 
-router.get("/search", fetchuser, async (req, res) => {
+router.get("/search", async (req, res) => {
   try {
-    const { search } = req.query;
-    if (!search.trim())
-      return res.status(401).json({ error: "search query is missing!" });
+    const { query } = req.query;
     const complaints = await Complaint.find({
-      $or: [
-        { partyName: { $regex: search, $options: "i" } },
-        { address: { $regex: search, $options: "i" } },
-        { state: { $regex: search, $options: "i" } },
-        { city: { $regex: search, $options: "i" } },
-        { brandName: { $regex: search, $options: "i" } },
-        { syphoneColor: { $regex: search, $options: "i" } },
-      ],
+      $or: [{ brandName: { $regex: query } }],
     });
-    res.json({
-      complaints: complaints.map((complaint) => {
-        return {
-          id: complaint._id,
-          partyName: complaint.partyName,
-          address: complaint.address,
-          pincode: complaint.pincode,
-          state: complaint.state,
-          city: complaint.city,
-          mobileNo: complaint.mobileNo,
-          plumbingNo: complaint.plumbingNo,
-          brandName: complaint.brandName,
-          workDone: complaint.workDone,
-          problemSolved: complaint.problemSolved,
-          repeat: complaint.repeat,
-          syphoneColor: complaint.syphoneColor,
-        };
-      }),
-    });
+    res.json(complaints);
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal server error\n" + error.message);
@@ -393,6 +366,28 @@ router.get("/searchById/:id", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
+router.get("/fetchTodaysComplaintsCount", async (req, res) => {
+  const { plumbingNo } = req.query;
+  try {
+    let n = moment().month() + 1;
+    if (n <= 9) {
+      n = "0" + n;
+    }
+    let currDate = moment().date() + "-" + n + "-" + moment().year();
+
+    let complaint = await Complaint.find({
+      $and: [{ date: { $eq: currDate } }, { plumbingNo: plumbingNo }],
+    });
+    if (!complaint) {
+      return res.status(404).send("Complaint Not Found!");
+    }
+    let lenTotal = complaint.length;
+    res.json({ complaint, lenTotal });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal server error");
+  }
+});
 router.get("/fetchComplaintsCount", async (req, res) => {
   const { plumbingNo } = req.query;
   try {
@@ -407,8 +402,8 @@ router.get("/fetchComplaintsCount", async (req, res) => {
     if (!complaint) {
       return res.status(404).send("Complaint Not Found!");
     }
-    let len = complaint.length;
-    res.json({ complaint, len });
+    let lenTotal = complaint.length;
+    res.json({ complaint, lenTotal });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal server error");
