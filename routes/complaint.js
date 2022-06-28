@@ -394,23 +394,16 @@ router.get("/searchById/:id", async (req, res) => {
   }
 });
 router.get("/fetchComplaintsCount", async (req, res) => {
+  const { plumbingNo } = req.query;
   try {
-    let n = moment().month();
+    let n = moment().month() + 1;
     if (n <= 9) {
       n = "0" + n;
     }
-
-    let currentDate = moment().year() + "-" + n + "-" + moment().date();
-    let complaint = await Complaint.aggregate([
-      {
-        $project: {
-          day: { $substr: ["$date", 9, 2] },
-          month: { $substr: ["$date", 5, 2] },
-          // year: { $substr: ["$date", 0, 4] },
-        },
-      },
-      { $match: { day: currentDate, month: n } },
-    ]);
+    let currDate = "1" + "-" + n + "-" + moment().year();
+    let complaint = await Complaint.find({
+      $and: [{ date: { $gt: currDate } }, { plumbingNo: plumbingNo }],
+    });
     if (!complaint) {
       return res.status(404).send("Complaint Not Found!");
     }
