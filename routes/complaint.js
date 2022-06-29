@@ -254,7 +254,7 @@ router.get("/search", async (req, res) => {
   try {
     const { query } = req.query;
     const complaints = await Complaint.find({
-      $or: [{ brandName: { $regex: query } }],
+      $or: [{ brandName: { $regex: query } }, { state: { $regex: query } }],
     });
     res.json(complaints);
   } catch (error) {
