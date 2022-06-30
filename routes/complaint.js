@@ -33,6 +33,7 @@ router.post(
         repeat,
         syphoneColor,
         entryUserEmail,
+        code,
       } = req.body;
 
       // If there are error then return the bad request and error
@@ -54,6 +55,7 @@ router.post(
         repeat,
         syphoneColor,
         entryUserEmail,
+        code,
       });
 
       const savecomplaint = await complaint.save();
@@ -103,6 +105,7 @@ router.put(
         solution,
         plumberName,
         closingDate,
+        code,
       } = req.body;
 
       if (!isValidObjectId(req.params.id)) {
@@ -131,6 +134,7 @@ router.put(
       complaint.solution = solution;
       complaint.plumberName = plumberName;
       complaint.closingDate = closingDate;
+      complaint.code = code;
 
       await complaint.save();
       res.json({
@@ -152,6 +156,7 @@ router.put(
           solution,
           plumberName,
           closingDate,
+          code,
         },
       });
     } catch (error) {
@@ -222,6 +227,7 @@ router.get("/fetchcomplaint/:id", async (req, res) => {
       repeat,
       syphoneColor,
       date,
+      code,
     } = complaint;
 
     res.json({
@@ -240,6 +246,7 @@ router.get("/fetchcomplaint/:id", async (req, res) => {
         repeat,
         syphoneColor,
         date,
+        code,
       },
     });
   } catch (error) {
@@ -378,6 +385,7 @@ router.get("/searchById/:id", async (req, res) => {
       problemSolved,
       repeat,
       syphoneColor,
+      code,
       remark,
       problem,
       solution,
@@ -400,6 +408,7 @@ router.get("/searchById/:id", async (req, res) => {
         problemSolved,
         repeat,
         syphoneColor,
+        code,
         remark,
         problem,
         solution,
@@ -483,6 +492,7 @@ router.get("/fetchComplaints", async (req, res) => {
         workDone: complaint.workDone,
         problemSolved: complaint.problemSolved,
         repeat: complaint.repeat,
+        code: complaint.code,
         syphoneColor: complaint.syphoneColor,
         date: complaint.date,
       })),

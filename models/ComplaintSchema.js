@@ -60,6 +60,9 @@ const ComplaintSchema = new Schema({
     type: String,
     default: "",
   },
+  code: {
+    type: String,
+  },
   remark: {
     type: String,
   },
