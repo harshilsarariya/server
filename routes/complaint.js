@@ -15,7 +15,7 @@ router.post(
     }),
     body("pincode", "Enter a valid Pincode").isLength({ min: 6 }),
     body("mobileNo", "Enter a valid Mobile Number").isLength({ min: 8 }),
-    body("plumbingNo", "Enter a valid Plumbing Number").isLength({ min: 1 }),
+    body("plumbingNo", "Enter a valid Office Number").isLength({ min: 1 }),
     body("brandName", "Enter a valid Brand Name").isLength({ min: 2 }),
   ],
   async (req, res) => {
@@ -252,10 +252,28 @@ router.get("/fetchcomplaint/:id", async (req, res) => {
 
 router.get("/search", async (req, res) => {
   try {
-    const { query } = req.query;
+    const { query, month } = req.query;
+    let currDate = moment().year() + "-" + Number(month) + "-" + "1";
+    currDate = new Date(currDate);
+    let lastDate = moment().year() + "-" + (Number(month) + 1) + "-" + "1";
+    lastDate = new Date(lastDate);
     const complaints = await Complaint.find({
-      $or: [{ brandName: { $regex: query } }, { state: { $regex: query } }],
-    });
+      $and: [
+        {
+          $and: [
+            { createdAt: { $gt: currDate } },
+            { createdAt: { $lte: lastDate } },
+          ],
+        },
+        {
+          $or: [
+            { brandName: { $regex: `${query}` } },
+            { state: { $regex: `${query}` } },
+          ],
+        },
+      ],
+    }).sort({ createdAt: -1 });
+
     res.json(complaints);
   } catch (error) {
     console.error(error.message);
@@ -266,10 +284,24 @@ router.get("/search", async (req, res) => {
 //  Search By id using : GET "api/complaint/searchByCompany" ,  login required
 router.get("/searchByState", async (req, res) => {
   try {
-    const { state } = req.query;
+    const { query, month } = req.query;
+    let currDate = moment().year() + "-" + Number(month) + "-" + "1";
+    currDate = new Date(currDate);
+    let lastDate = moment().year() + "-" + (Number(month) + 1) + "-" + "1";
+    lastDate = new Date(lastDate);
 
     // Find the complaint to be updated and update it
-    let complaint = await Complaint.find({ state: state });
+    let complaint = await Complaint.find({
+      $and: [
+        {
+          $and: [
+            { createdAt: { $gt: currDate } },
+            { createdAt: { $lte: lastDate } },
+          ],
+        },
+        { state: { $regex: `${query}` } },
+      ],
+    });
 
     if (!complaint) {
       return res.status(404).send("Complaint Not Found!");
@@ -299,9 +331,21 @@ router.get("/searchByCompany", async (req, res) => {
 });
 router.get("/searchByPhoneNo", async (req, res) => {
   try {
-    const { mobileNo } = req.query;
+    const { mobileNo, month } = req.query;
     // Find the complaint to be updated and update it
-    let complaint = await Complaint.find({ mobileNo: mobileNo });
+    let currDate = moment().year() + "-" + Number(month) + "-" + "1";
+    currDate = new Date(currDate);
+    let lastDate = moment().year() + "-" + (Number(month) + 1) + "-" + "1";
+    lastDate = new Date(lastDate);
+    let complaint = await Complaint.find({
+      $and: [
+        { createdAt: { $gt: currDate } },
+        { createdAt: { $lte: lastDate } },
+        { mobileNo: mobileNo },
+      ],
+    }).sort({
+      createdAt: -1,
+    });
     if (!complaint) {
       return res.status(404).send("Complaint Not Found!");
     }
@@ -369,14 +413,13 @@ router.get("/searchById/:id", async (req, res) => {
   }
 });
 router.get("/fetchTodaysComplaintsCount", async (req, res) => {
-  const { email } = req.query;
+  const { email, month } = req.query;
   try {
     let n = moment().month() + 1;
     if (n <= 9) {
       n = "0" + n;
     }
     let currDate = moment().date() + "-" + n + "-" + moment().year();
-
     let complaint = await Complaint.find({
       $and: [{ date: { $eq: currDate } }, { entryUserEmail: email }],
     });
@@ -391,15 +434,16 @@ router.get("/fetchTodaysComplaintsCount", async (req, res) => {
   }
 });
 router.get("/fetchComplaintsCount", async (req, res) => {
-  const { email } = req.query;
+  const { email, month } = req.query;
   try {
-    let n = moment().month() + 1;
-    if (n <= 9) {
-      n = "0" + n;
-    }
-    let currDate = "1" + "-" + n + "-" + moment().year();
+    let currDate = moment().year() + "-" + Number(month) + "-" + "1";
+    let lastDate = moment().year() + "-" + (Number(month) + 1) + "-" + "1";
     let complaint = await Complaint.find({
-      $and: [{ date: { $gt: currDate } }, { entryUserEmail: email }],
+      $and: [
+        { createdAt: { $gt: currDate } },
+        { createdAt: { $lte: lastDate } },
+        { entryUserEmail: email },
+      ],
     });
     if (!complaint) {
       return res.status(404).send("Complaint Not Found!");
@@ -412,110 +456,6 @@ router.get("/fetchComplaintsCount", async (req, res) => {
   }
 });
 
-// ROUTE 7: Search Complaint by status using : GET "api/complaint/searchByStatus" ,  login required
-
-router.get("/searchByOpen", fetchuser, async (req, res) => {
-  try {
-    const { search } = req.query;
-    if (!search.trim())
-      return res.status(401).json({ error: "search query is missing!" });
-    const complaints = await Complaint.find({
-      $or: [
-        { problemSolved: { $regex: search, $options: "i" } === "No" },
-        {
-          workDone: { $regex: search, $options: "i" } === "No",
-        },
-      ],
-    });
-    res.json({
-      complaints: complaints.map((complaint) => {
-        return {
-          id: complaint._id,
-          partyName: complaint.partyName,
-          address: complaint.address,
-          pincode: complaint.pincode,
-          state: complaint.state,
-          city: complaint.city,
-          mobileNo: complaint.mobileNo,
-          plumbingNo: complaint.plumbingNo,
-          brandName: complaint.brandName,
-          workDone: complaint.workDone,
-          problemSolved: complaint.problemSolved,
-          repeat: complaint.repeat,
-          syphoneColor: complaint.syphoneColor,
-        };
-      }),
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send("Internal server error\n" + error.message);
-  }
-});
-router.get("/searchByClosed", fetchuser, async (req, res) => {
-  try {
-    const { workDone } = req.query;
-    if (!workDone.trim())
-      return res.status(401).json({ error: "workDone query is missing!" });
-    const complaints = await Complaint.find({
-      workDone: { $regex: workDone, $options: "i" },
-    });
-    res.json({
-      complaints: complaints.map((complaint) => {
-        return {
-          id: complaint._id,
-          partyName: complaint.partyName,
-          address: complaint.address,
-          pincode: complaint.pincode,
-          state: complaint.state,
-          city: complaint.city,
-          mobileNo: complaint.mobileNo,
-          plumbingNo: complaint.plumbingNo,
-          brandName: complaint.brandName,
-          workDone: complaint.workDone,
-          problemSolved: complaint.problemSolved,
-          repeat: complaint.repeat,
-          syphoneColor: complaint.syphoneColor,
-        };
-      }),
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send("Internal server error\n" + error.message);
-  }
-});
-router.get("/searchByInProgress", fetchuser, async (req, res) => {
-  try {
-    const { problemSolved } = req.query;
-    if (!problemSolved.trim())
-      return res.status(401).json({ error: "problemSolved query is missing!" });
-    const complaints = await Complaint.find({
-      problemSolved: { $regex: problemSolved, $options: "i" },
-    });
-    res.json({
-      complaints: complaints.map((complaint) => {
-        return {
-          id: complaint._id,
-          partyName: complaint.partyName,
-          address: complaint.address,
-          pincode: complaint.pincode,
-          state: complaint.state,
-          city: complaint.city,
-          mobileNo: complaint.mobileNo,
-          plumbingNo: complaint.plumbingNo,
-          brandName: complaint.brandName,
-          workDone: complaint.workDone,
-          problemSolved: complaint.problemSolved,
-          repeat: complaint.repeat,
-          syphoneColor: complaint.syphoneColor,
-        };
-      }),
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send("Internal server error\n" + error.message);
-  }
-});
-
 // Route 8: Fetch recent Complaint  using : GET "api/complaint/fetchComplaints" ,  login required
 
 router.get("/fetchComplaints", async (req, res) => {
@@ -523,7 +463,7 @@ router.get("/fetchComplaints", async (req, res) => {
     const { pageNo = 0, limit = 5 } = req.query;
 
     const complaints = await Complaint.find({})
-      .sort({ date: -1 })
+      .sort({ createdAt: -1 })
       .skip(parseInt(pageNo) * parseInt(limit))
       .limit(parseInt(limit));
 
