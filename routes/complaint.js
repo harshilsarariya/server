@@ -428,7 +428,11 @@ router.get("/fetchTodaysComplaintsCount", async (req, res) => {
     if (n <= 9) {
       n = "0" + n;
     }
-    let currDate = moment().date() + "-" + n + "-" + moment().year();
+    let xdate = moment().date();
+    if (xdate <= 9) {
+      xdate = "0" + xdate;
+    }
+    let currDate = xdate + "-" + n + "-" + moment().year();
     let complaint = await Complaint.find({
       $and: [{ date: { $eq: currDate } }, { entryUserEmail: email }],
     });
