@@ -422,7 +422,7 @@ router.get("/searchById/:id", async (req, res) => {
   }
 });
 router.get("/fetchTodaysComplaintsCount", async (req, res) => {
-  const { email, month } = req.query;
+  const { email } = req.query;
   try {
     let n = moment().month() + 1;
     if (n <= 9) {
