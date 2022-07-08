@@ -274,8 +274,8 @@ router.get("/search", async (req, res) => {
         },
         {
           $or: [
-            { brandName: { $regex: `${query}` } },
-            { state: { $regex: `${query}` } },
+            { brandName: { $regex: `^${query}`, $options: "m" } },
+            { state: { $regex: `^${query}`, $options: "m" } },
           ],
         },
       ],
