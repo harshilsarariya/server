@@ -276,6 +276,7 @@ router.get("/search", async (req, res) => {
           $or: [
             { brandName: { $regex: `^${query}`, $options: "m" } },
             { state: { $regex: `^${query}`, $options: "m" } },
+            { plumberName: { $regex: `^${query}`, $options: "m" } },
           ],
         },
       ],
@@ -493,6 +494,7 @@ router.get("/fetchComplaints", async (req, res) => {
         mobileNo: complaint.mobileNo,
         plumbingNo: complaint.plumbingNo,
         brandName: complaint.brandName,
+        plumberName: complaint.plumberName,
         workDone: complaint.workDone,
         problemSolved: complaint.problemSolved,
         repeat: complaint.repeat,
