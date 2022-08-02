@@ -65,6 +65,9 @@ const ComplaintSchema = new Schema({
   remark: {
     type: String,
   },
+  entryRemark: {
+    type: String,
+  },
   problem: {
     type: String,
   },

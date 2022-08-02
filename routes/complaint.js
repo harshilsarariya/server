@@ -34,6 +34,7 @@ router.post(
         syphoneColor,
         entryUserEmail,
         code,
+        entryRemark,
       } = req.body;
 
       // If there are error then return the bad request and error
@@ -56,6 +57,7 @@ router.post(
         syphoneColor,
         entryUserEmail,
         code,
+        entryRemark,
       });
 
       const savecomplaint = await complaint.save();
@@ -100,6 +102,7 @@ router.put(
         problemSolved,
         repeat,
         syphoneColor,
+        entryRemark,
         remark,
         problem,
         solution,
@@ -130,6 +133,7 @@ router.put(
       complaint.repeat = repeat;
       complaint.syphoneColor = syphoneColor;
       complaint.remark = remark;
+      complaint.entryRemark = entryRemark;
       complaint.problem = problem;
       complaint.solution = solution;
       complaint.plumberName = plumberName;
@@ -152,6 +156,7 @@ router.put(
           repeat,
           syphoneColor,
           remark,
+          entryRemark,
           problem,
           solution,
           plumberName,
@@ -276,7 +281,7 @@ router.get("/search", async (req, res) => {
           $or: [
             { brandName: { $regex: `^${query}`, $options: "m" } },
             { state: { $regex: `^${query}`, $options: "m" } },
-            { plumberName: { $regex: `^${query}`, $options: "m" } },
+            { plumberName: `${query}` },
           ],
         },
       ],
@@ -388,6 +393,7 @@ router.get("/searchById/:id", async (req, res) => {
       syphoneColor,
       code,
       remark,
+      entryRemark,
       problem,
       solution,
       plumberName,
@@ -411,6 +417,7 @@ router.get("/searchById/:id", async (req, res) => {
         syphoneColor,
         code,
         remark,
+        entryRemark,
         problem,
         solution,
         plumberName,
@@ -498,6 +505,7 @@ router.get("/fetchComplaints", async (req, res) => {
         workDone: complaint.workDone,
         problemSolved: complaint.problemSolved,
         repeat: complaint.repeat,
+        entryRemark: complaint.entryRemark,
         code: complaint.code,
         syphoneColor: complaint.syphoneColor,
         date: complaint.date,
